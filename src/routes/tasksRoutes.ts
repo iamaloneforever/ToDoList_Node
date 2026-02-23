@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { Test } from "../controllers/taskController";
+import { GetTasks } from "../controllers/taskController";
 
-const router = Router()
+const router = Router();
 
-router.get('/todos', Test)
+router.get("/", GetTasks);
 
-export default router
+export default router;
