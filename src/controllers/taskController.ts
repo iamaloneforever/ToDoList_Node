@@ -20,8 +20,8 @@ export const GetTasks = async (req: Request, res: Response) => {
 			res.status(200).json({ "message : ": "No Task Found" });
 		}
 		res.status(200).json(tasks);
-	} catch {
-		res.status(500).json({ Error: "Server Error" });
+	} catch (error) {
+		res.status(500).json({ Error: `Server Error : ${error}` });
 	}
 };
 
@@ -34,8 +34,8 @@ export const FindTask = async (req: Request, res: Response) => {
 		}
 
 		res.status(200).json(task);
-	} catch {
-		res.status(500).json({ Error: "Server Error" });
+	} catch (error) {
+		res.status(500).json({ Error: `Server Error : ${error}` });
 	}
 };
 
@@ -51,6 +51,19 @@ export const AddTask = async (req: Request, res: Response) => {
 				errors: error.format(), // Format errors for better readability
 			});
 		}
-		res.status(500).json({ Error: "Server Error" });
+		res.status(500).json({ Error: `Server Error : ${error}` });
+	}
+};
+
+export const DeleteTask = async (req: Request, res: Response) => {
+	try {
+		const { id } = req.params;
+		const deletedTask = await Task.findByIdAndDelete(id);
+		if (!deletedTask) {
+			return res.status(404).json({ message: "Task not found" });
+		}
+		res.status(200).json({ message: "Task Deleted successfully" });
+	} catch (error) {
+		res.status(500).json({ Error: `Server Error : ${error}` });
 	}
 };
