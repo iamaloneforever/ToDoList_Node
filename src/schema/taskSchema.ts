@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { required } from "zod/mini";
 const { Schema } = mongoose;
 
 const taskSchema = new Schema(
@@ -10,6 +11,11 @@ const taskSchema = new Schema(
 			type: String,
 			enum: ["pending", "in-progress", "done", "canceled"],
 			default: "pending",
+		},
+		user: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Users",
+			required: true,
 		},
 	},
 	{

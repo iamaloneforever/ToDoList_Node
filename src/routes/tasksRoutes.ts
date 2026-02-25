@@ -5,12 +5,14 @@ import {
 	FindTask,
 	GetTasks,
 } from "../controllers/taskController";
+import { AuthMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
 
-router.get("/", GetTasks);
-router.get("/:id", FindTask);
-router.post("/addtask", AddTask);
-router.delete("/:id", DeleteTask);
+// 🔐 همه این روت‌ها نیاز به لاگین دارن
+router.get("/", AuthMiddleware, GetTasks);
+router.get("/:id", AuthMiddleware, FindTask);
+router.post("/addtask", AuthMiddleware, AddTask);
+router.delete("/:id", AuthMiddleware, DeleteTask);
 
 export default router;
