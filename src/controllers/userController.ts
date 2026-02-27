@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as z from "zod";
 import UserModel from "../schema/userSchema";
-import jwt from "jsonwebtoken";
+import argon2 from "argon2";
 import { generateToken } from "../utils/generateToken";
 
 const jsonsecret = process.env.JSON_SECRET;
@@ -33,7 +33,9 @@ export const RegisterUser = async (req: Request, res: Response) => {
 			return res.status(400).json({ message: "User already exists" });
 		}
 
-		const user = new UserModel(parsed);
+		const hashedPassword = await argon2.hash(parsed.password);
+
+		const user = new UserModel({ ...parsed, password: hashedPassword });
 
 		const token = generateToken(user.id);
 
@@ -41,7 +43,7 @@ export const RegisterUser = async (req: Request, res: Response) => {
 
 		await user.save();
 
-		res.status(201).json(user);
+		res.status(201).json({ ...user.toObject(), password: undefined });
 	} catch (error) {
 		if (error instanceof z.ZodError) {
 			return res.status(400).json({ errors: error.issues });
@@ -58,7 +60,12 @@ export const LoginUser = async (req: Request, res: Response) => {
 
 		const user = await UserModel.findOne({ email: parsed.email });
 
-		if (!user || user.password !== parsed.password) {
+		if (!user) {
+			return res.status(400).json({ message: "Invalid credentials" });
+		}
+
+		const isMatch = await argon2.verify(user.password, parsed.password);
+		if (!isMatch) {
 			return res.status(400).json({ message: "Invalid credentials" });
 		}
 
